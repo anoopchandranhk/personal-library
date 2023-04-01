@@ -25,64 +25,60 @@
 *
 */
 
-const analyser = require('./assertion-analyser');
-const EventEmitter = require('events').EventEmitter;
+const { EventEmitter } = require('events');
 
-const Mocha = require('mocha'),
-    fs = require('fs'),
-    path = require('path');
+const Mocha = require('mocha');
+const fs = require('fs');
+const path = require('path');
+const analyser = require('./assertion-analyser');
 
 const mocha = new Mocha();
-const testDir = './tests'
-
+const testDir = './tests';
 
 // Add each .js file to the mocha instance
-fs.readdirSync(testDir).filter(function(file){
-    // Only keep the .js files
-    return file.substr(-3) === '.js';
-
-}).forEach(function(file){
-    mocha.addFile(
-        path.join(testDir, file)
-    );
+fs.readdirSync(testDir).filter((file) =>
+  // Only keep the .js files
+  file.substr(-3) === '.js').forEach((file) => {
+  mocha.addFile(
+    path.join(testDir, file),
+  );
 });
 
-let emitter = new EventEmitter();  
-emitter.run = function() {
-
-  let tests = [];
-  let context = "";
-  let separator = ' -> ';
+const emitter = new EventEmitter();
+emitter.run = () => {
+  const tests = [];
+  let context = '';
+  const separator = ' -> ';
   // Run the tests.
   try {
-  let runner = mocha.ui('tdd').run()
-    .on('test end', function(test) {
+    // eslint-disable-next-line no-unused-vars
+    const runner = mocha.ui('tdd').run()
+      .on('test end', (test) => {
         // remove comments
         let body = test.body.replace(/\/\/.*\n|\/\*.*\*\//g, '');
         // collapse spaces
-        body = body.replace(/\s+/g,' ');
-        let obj = {
+        body = body.replace(/\s+/g, ' ');
+        const obj = {
           title: test.title,
           context: context.slice(0, -separator.length),
           state: test.state,
           // body: body,
-          assertions: analyser(body)
+          assertions: analyser(body),
         };
         tests.push(obj);
-    })
-    .on('end', function() {
+      })
+      .on('end', () => {
         emitter.report = tests;
-        emitter.emit('done', tests)
-    })
-    .on('suite', function(s) {
-      context += (s.title + separator);
-
-    })
-    .on('suite end', function(s) {
-      context = context.slice(0, -(s.title.length + separator.length))
-    })
-  } catch(e) {
-    throw(e);
+        emitter.emit('done', tests);
+      })
+      .on('suite', (s) => {
+        context += (s.title + separator);
+      })
+      .on('suite end', (s) => {
+        context = context.slice(0, -(s.title.length + separator.length));
+      });
+  } catch (e) {
+    throw (e);
   }
 };
 
