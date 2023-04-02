@@ -21,7 +21,7 @@ const getBookById = async (req, res) => {
 
     return res.json(book);
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    return res.json('no book exists');
   }
 };
 
@@ -54,12 +54,13 @@ const postComment = async (req, res) => {
       return res.json('no book exists');
     }
     book.comments.push(comment);
+    book.commentcount += 1;
     const updatedBook = await book.save();
     console.log(updatedBook, 'updatedBook from postComment after update');
 
     return res.json(updatedBook);
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json('no book exists');
   }
 };
 
@@ -85,7 +86,7 @@ const deleteBookById = async (req, res) => {
     }
     return res.json('no book exists');
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json('no book exists');
   }
 };
 
