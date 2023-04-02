@@ -43,20 +43,16 @@ const postComment = async (req, res) => {
   try {
     const { id } = req.params;
     const { comment } = req.body;
-    console.log(id, 'id from post comment');
-    console.log(comment, 'comment from post comment');
     if (!comment) {
       return res.json('missing required field comment');
     }
     const book = await Books.findById({ _id: id });
-    console.log(book, 'book from postComment');
     if (!book) {
       return res.json('no book exists');
     }
     book.comments.push(comment);
     book.commentcount += 1;
     const updatedBook = await book.save();
-    console.log(updatedBook, 'updatedBook from postComment after update');
 
     return res.json(updatedBook);
   } catch (err) {
@@ -78,9 +74,7 @@ const deleteBooks = async (req, res) => {
 const deleteBookById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id, 'id');
     const deleted = await Books.deleteOne({ _id: id });
-    console.log(deleted, 'deleted book by ID');
     if (deleted.deletedCount === 1) {
       return res.json('delete successful');
     }
